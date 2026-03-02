@@ -124,8 +124,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-    //                                | TO(0)   | GUI     |   | RAlt    | TO(2)   |
-                                       TO(_BASE), KC_LGUI,     KC_RALT, TO(_NUMBERS),
+    //                                | TO(0)   | GUI     |   | RAlt    | TO(3)   |
+                                       TO(_BASE), KC_LGUI,     KC_RALT, TO(_NAV),
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
     ),
 
