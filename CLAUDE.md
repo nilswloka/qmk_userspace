@@ -12,6 +12,8 @@ Custom firmware for a splitkb Halcyon Ferris 34-key split keyboard.
   The `users/halcyon_modules/` directory is maintained by splitkb — do not edit it.
 - Keep a known-good .uf2 backup before flashing experimental firmware.
 - EEPROM has ~100,000 write cycles. Don't reflash in a tight loop during development.
+- `qmk flash` is denied in Claude Code settings — flashing always requires explicit
+  user confirmation. This is enforced via `.claude/settings.json` permissions.
 
 ## Project Structure
 
