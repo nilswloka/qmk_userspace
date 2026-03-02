@@ -5,23 +5,7 @@
             "splitkb/halcyon/ferris/rev1",
             "nils",
             {
-                "HLC_TFT_DISPLAY": "1",
-                "TARGET": "halcyon_ferris_nils_display"
-            }
-        ],
-        [
-            "splitkb/halcyon/ferris/rev1",
-            "nils",
-            {
                 "HLC_CIRQUE_TRACKPAD": "1",
-                "TARGET": "halcyon_ferris_nils_trackpad"
-            }
-        ],
-        [
-            "splitkb/halcyon/ferris/rev1",
-            "nils",
-            {
-                "HLC_NONE": "1",
                 "TARGET": "halcyon_ferris_nils"
             }
         ]

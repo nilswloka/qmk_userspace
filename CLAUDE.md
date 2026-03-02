@@ -43,10 +43,12 @@ Download .uf2 files from the Releases tab.
 ### Local build (requires qmk CLI)
 ```bash
 qmk config user.overlay_dir="$(realpath .)"
-qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_NONE=1
-qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_TFT_DISPLAY=1 -e TARGET=ferris_display
-qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_CIRQUE_TRACKPAD=1 -e TARGET=ferris_trackpad
+qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_CIRQUE_TRACKPAD=1
 ```
+
+Hardware setup: display on left half, trackpad on right half (master).
+The `HLC_CIRQUE_TRACKPAD` flag matches the master (right) half's module.
+Display on the left half works via split transport.
 
 ### Flashing (RP2040 UF2)
 1. Enter DFU mode: press QK_BOOT key in keymap, OR hold BOOT + press RESET on PCB
