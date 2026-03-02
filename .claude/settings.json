@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "deny": [
+      "Bash(qmk flash *)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
