@@ -43,7 +43,7 @@ Download .uf2 files from the Releases tab.
 ### Local build (requires qmk CLI)
 ```bash
 qmk config user.overlay_dir="$(realpath .)"
-qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils
+qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_NONE=1
 qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_TFT_DISPLAY=1 -e TARGET=ferris_display
 qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_CIRQUE_TRACKPAD=1 -e TARGET=ferris_trackpad
 ```
