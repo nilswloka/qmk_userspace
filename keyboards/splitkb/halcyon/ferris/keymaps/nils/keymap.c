@@ -255,6 +255,38 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             break;
     }
 
+    // One-shot modifier indicators
+    uint8_t osm      = get_oneshot_mods();
+    uint8_t osm_lock = get_oneshot_locked_mods();
+
+    if (osm_lock & MOD_MASK_SHIFT) {
+        // Locked: pulsing red (triangle wave ~2 Hz)
+        uint16_t t = timer_read() % 500;
+        uint8_t pulse = (t < 250) ? t : (500 - t);  // 0–250
+        uint8_t val = 80 + (pulse * 120) / 250;      // 80–200
+        HSV osm_hsv = {0, 255, val};
+        RGB osm_rgb = hsv_to_rgb(osm_hsv);
+        rgb_matrix_set_color(LED_L_THUMB_OUTER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
+    } else if (osm & MOD_MASK_SHIFT) {
+        // Armed: solid red
+        HSV osm_hsv = {0, 255, 150};
+        RGB osm_rgb = hsv_to_rgb(osm_hsv);
+        rgb_matrix_set_color(LED_L_THUMB_OUTER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
+    }
+
+    if (osm_lock & MOD_MASK_CTRL) {
+        uint16_t t = timer_read() % 500;
+        uint8_t pulse = (t < 250) ? t : (500 - t);
+        uint8_t val = 80 + (pulse * 120) / 250;
+        HSV osm_hsv = {0, 255, val};
+        RGB osm_rgb = hsv_to_rgb(osm_hsv);
+        rgb_matrix_set_color(LED_R_THUMB_INNER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
+    } else if (osm & MOD_MASK_CTRL) {
+        HSV osm_hsv = {0, 255, 150};
+        RGB osm_rgb = hsv_to_rgb(osm_hsv);
+        rgb_matrix_set_color(LED_R_THUMB_INNER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
+    }
+
     return false;
 }
 
