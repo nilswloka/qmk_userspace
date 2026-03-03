@@ -14,6 +14,13 @@
 // Encoder (Halcyon module)
 #define ENCODER_RESOLUTION 2
 
+// RGB Matrix defaults
+#define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
+#define RGB_MATRIX_DEFAULT_HUE 0
+#define RGB_MATRIX_DEFAULT_SAT 0
+#define RGB_MATRIX_DEFAULT_VAL 40
+#define RGB_MATRIX_TIMEOUT 300000  // 5 min idle auto-off
+
 // TFT Display (secondary/left half)
 // Pin definitions match the Halcyon TFT display module on VIK connector
 #define LCD_RST_PIN GP26
