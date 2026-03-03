@@ -78,6 +78,15 @@ Rectangle: R Lf/Rt/Up/Dn = tile left/right/top/bottom (Gui+Shift+arrow)
 !! BOOT = enters DFU mode for flashing (bottom-right, layer 3 only)
 
 ==========================================================================
+COMBOS (press both keys within 40ms)
+==========================================================================
+
+Left hand (opening)        Right hand (closing)
+  p + y  =  (                f + g  =  )        top row
+  u + i  =  [                d + h  =  ]        home row
+  k + x  =  {                b + m  =  }        bottom row
+
+==========================================================================
 LAYER NAVIGATION
 ==========================================================================
 

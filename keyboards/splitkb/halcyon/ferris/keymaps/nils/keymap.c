@@ -183,6 +183,27 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
+// ─── Combos (bracket pairs on innermost columns) ──────────────────────
+//
+// Left hand → opening bracket, right hand → closing bracket
+// Top row: ()   Home row: []   Bottom row: {}
+
+const uint16_t PROGMEM combo_lparen[]   = {KC_P, KC_Y, COMBO_END};
+const uint16_t PROGMEM combo_rparen[]   = {KC_F, KC_G, COMBO_END};
+const uint16_t PROGMEM combo_lbracket[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_rbracket[] = {KC_D, KC_H, COMBO_END};
+const uint16_t PROGMEM combo_lbrace[]   = {KC_K, KC_X, COMBO_END};
+const uint16_t PROGMEM combo_rbrace[]   = {KC_B, KC_M, COMBO_END};
+
+combo_t key_combos[] = {
+    COMBO(combo_lparen,   KC_LPRN),
+    COMBO(combo_rparen,   KC_RPRN),
+    COMBO(combo_lbracket, KC_LBRC),
+    COMBO(combo_rbracket, KC_RBRC),
+    COMBO(combo_lbrace,   KC_LCBR),
+    COMBO(combo_rbrace,   KC_RCBR),
+};
+
 // ─── RGB Matrix Indicators ────────────────────────────────────────────
 
 static inline void set_osm_led(uint8_t led, bool locked, uint16_t now) {
