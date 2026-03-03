@@ -225,6 +225,36 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         }
     }
 
+    // Pick highlight color (same hue, full brightness)
+    uint8_t hi_h = bg_h, hi_s = (layer == _BASE) ? 0 : 255, hi_v = 255;
+    HSV hi_hsv = {hi_h, hi_s, hi_v};
+    RGB hi_rgb = hsv_to_rgb(hi_hsv);
+
+    switch (layer) {
+        case _BASE:
+            // Home row mods
+            rgb_matrix_set_color(LED_A_ALT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_O_GUI, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_N_GUI, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_S_ALT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            break;
+        case _SYMBOLS:
+        case _NUMBERS:
+            // Navigation keys
+            rgb_matrix_set_color(LED_ESC,   hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_TAB,   hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_BKSP,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_ENTER, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            break;
+        case _NAV:
+            // Arrow keys
+            rgb_matrix_set_color(LED_LEFT,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_DOWN,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_UP,    hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            rgb_matrix_set_color(LED_RIGHT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            break;
+    }
+
     return false;
 }
 
