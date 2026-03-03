@@ -32,21 +32,6 @@
 #define LED_UP      36
 #define LED_RIGHT   37
 
-// Layer background colors (H, S, V)
-#define HSV_RGB_BASE     0,   0,  40   // dim white
-#define HSV_RGB_SYMBOLS  85, 255, 120  // green
-#define HSV_RGB_NUMBERS 170, 255, 120  // blue
-#define HSV_RGB_NAV      43, 255, 120  // yellow
-
-// Functional highlight: same hue as layer, full brightness
-#define HSV_RGB_HIGHLIGHT_BASE     0,   0, 255
-#define HSV_RGB_HIGHLIGHT_SYMBOLS  85, 255, 255
-#define HSV_RGB_HIGHLIGHT_NUMBERS 170, 255, 255
-#define HSV_RGB_HIGHLIGHT_NAV      43, 255, 255
-
-// One-shot modifier indicator
-#define HSV_RGB_OSM_ARMED  0, 255, 150  // solid red
-
 // Tap-dance indices
 enum {
     TD_COMM_DASH,  // tap = , / hold = -
@@ -200,6 +185,21 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 // ─── RGB Matrix Indicators ────────────────────────────────────────────
 
+static inline void set_osm_led(uint8_t led, bool locked, uint16_t now) {
+    if (locked) {
+        uint16_t t     = now % 500;
+        uint8_t  pulse = (t < 250) ? t : (500 - t);
+        uint8_t  val   = 80 + (pulse * 120) / 250;
+        HSV      hsv   = {0, 255, val};
+        RGB      rgb   = hsv_to_rgb(hsv);
+        rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
+    } else {
+        HSV hsv = {0, 255, 150};
+        RGB rgb = hsv_to_rgb(hsv);
+        rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
+    }
+}
+
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
@@ -258,34 +258,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     // One-shot modifier indicators
     uint8_t osm      = get_oneshot_mods();
     uint8_t osm_lock = get_oneshot_locked_mods();
+    uint16_t now     = timer_read();
 
-    if (osm_lock & MOD_MASK_SHIFT) {
-        // Locked: pulsing red (triangle wave ~2 Hz)
-        uint16_t t = timer_read() % 500;
-        uint8_t pulse = (t < 250) ? t : (500 - t);  // 0–250
-        uint8_t val = 80 + (pulse * 120) / 250;      // 80–200
-        HSV osm_hsv = {0, 255, val};
-        RGB osm_rgb = hsv_to_rgb(osm_hsv);
-        rgb_matrix_set_color(LED_L_THUMB_OUTER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
-    } else if (osm & MOD_MASK_SHIFT) {
-        // Armed: solid red
-        HSV osm_hsv = {0, 255, 150};
-        RGB osm_rgb = hsv_to_rgb(osm_hsv);
-        rgb_matrix_set_color(LED_L_THUMB_OUTER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
-    }
-
-    if (osm_lock & MOD_MASK_CTRL) {
-        uint16_t t = timer_read() % 500;
-        uint8_t pulse = (t < 250) ? t : (500 - t);
-        uint8_t val = 80 + (pulse * 120) / 250;
-        HSV osm_hsv = {0, 255, val};
-        RGB osm_rgb = hsv_to_rgb(osm_hsv);
-        rgb_matrix_set_color(LED_R_THUMB_INNER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
-    } else if (osm & MOD_MASK_CTRL) {
-        HSV osm_hsv = {0, 255, 150};
-        RGB osm_rgb = hsv_to_rgb(osm_hsv);
-        rgb_matrix_set_color(LED_R_THUMB_INNER, osm_rgb.r, osm_rgb.g, osm_rgb.b);
-    }
+    if (osm_lock & MOD_MASK_SHIFT || osm & MOD_MASK_SHIFT)
+        set_osm_led(LED_L_THUMB_OUTER, osm_lock & MOD_MASK_SHIFT, now);
+    if (osm_lock & MOD_MASK_CTRL || osm & MOD_MASK_CTRL)
+        set_osm_led(LED_R_THUMB_INNER, osm_lock & MOD_MASK_CTRL, now);
 
     return false;
 }
