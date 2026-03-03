@@ -219,7 +219,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     for (uint8_t i = led_min; i < led_max; i++) {
         if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
-            rgb_matrix_set_color(i, 0, 0, 0);  // underglow off
+            rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);  // underglow matches layer
         } else {
             rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);
         }
