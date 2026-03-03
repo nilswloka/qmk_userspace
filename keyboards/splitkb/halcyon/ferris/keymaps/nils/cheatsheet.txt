@@ -55,19 +55,23 @@ LAYER 2 -- NUMBERS
                      +------+------+   +------+------+
 
 ==========================================================================
-LAYER 3 -- NAV (stub)
+LAYER 3 -- NAV
 ==========================================================================
 
 +------+------+------+------+------+   +------+------+------+------+------+
-|      |      |      |      |      |   |      |      |      |      |      |
+|      | ScLf | MsUp | ScRt |      |   | Back | PTab | NTab | Fwd  | Bksp |
 +------+------+------+------+------+   +------+------+------+------+------+
-|      |      |      |      |      |   |      |      |      |      |      |
+|      | MsLf | MsDn | MsRt | Del  |   | Left | Down |  Up  |Right |Enter |
 +------+------+------+------+------+   +------+------+------+------+------+
-|      |      |      |      |      |   |      |      |      |      | BOOT |
+|      | Btn2 | ScUp | ScDn |      |   | Btn1 | Home | PgUp | PgDn | BOOT |
 +------+------+------+------+------+   +------+------+------+------+------+
                      +------+------+   +------+------+
                      |TO(0) |      |   | RAlt |TO(1) |
                      +------+------+   +------+------+
+
+Mouse: MsUp/Dn/Lf/Rt = pointer, ScUp/Dn/Lf/Rt = scroll wheel
+       Btn1 = left click, Btn2 = right click
+Browser: PTab = prev tab (Ctrl+Shift+Tab), NTab = next tab (Ctrl+Tab)
 
 !! BOOT = enters DFU mode for flashing (bottom-right, layer 3 only)
 
