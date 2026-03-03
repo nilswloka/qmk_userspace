@@ -198,6 +198,36 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
+// ─── RGB Matrix Indicators ────────────────────────────────────────────
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    uint8_t layer = get_highest_layer(layer_state | default_layer_state);
+
+    // Pick layer background color
+    uint8_t bg_h, bg_s, bg_v;
+    switch (layer) {
+        case _BASE:    bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
+        case _SYMBOLS: bg_h = 85;  bg_s = 255; bg_v = 120; break;
+        case _NUMBERS: bg_h = 170; bg_s = 255; bg_v = 120; break;
+        case _NAV:     bg_h = 43;  bg_s = 255; bg_v = 120; break;
+        default:       bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
+    }
+
+    // Convert HSV to RGB once for the background
+    HSV bg_hsv = {bg_h, bg_s, bg_v};
+    RGB bg_rgb = hsv_to_rgb(bg_hsv);
+
+    for (uint8_t i = led_min; i < led_max; i++) {
+        if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
+            rgb_matrix_set_color(i, 0, 0, 0);  // underglow off
+        } else {
+            rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);
+        }
+    }
+
+    return false;
+}
+
 // ─── TFT Display (secondary/left half) ────────────────────────────────
 //
 // The display module source (hlc_tft_display.c) is not compiled when
