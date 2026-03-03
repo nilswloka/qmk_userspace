@@ -135,12 +135,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_NAV] = LAYOUT_ferris_hlc(
     //  +---------+---------+---------+---------+---------+   +---------+---------+---------+---------+---------+
-    //  | (none)  | ScLf    | MsUp    | ScRt    | (none)  |   | Back    | PTab    | NTab    | Fwd     | BKSP    |
-         KC_NO,    MS_WHLL,  MS_UP,    MS_WHLR,  KC_NO,       KC_WBAK,  C(S(KC_TAB)), C(KC_TAB), KC_WFWD, KC_BSPC,
-    //  | (none)  | MsLf    | MsDn    | MsRt    | Del     |   | Left    | Down    | Up      | Right   | ENTER   |
-         KC_NO,    MS_LEFT,  MS_DOWN,  MS_RGHT,  KC_DEL,      KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  KC_ENT,
-    //  | (none)  | Btn2    | ScUp    | ScDn    | (none)  |   | Btn1    | Home    | PgUp    | PgDn    | BOOT    |
-         KC_NO,    MS_BTN2,  MS_WHLU,  MS_WHLD,  KC_NO,       MS_BTN1,  KC_HOME,  KC_PGUP,  KC_PGDN,  QK_BOOT,
+    //  | G+S+Lf  | ScLf    | MsUp    | ScRt    | G+S+Rt  |   | Back    | PTab    | NTab    | Fwd     | BKSP    |
+         G(S(KC_LEFT)), MS_WHLL, MS_UP, MS_WHLR, G(S(KC_RGHT)), KC_WBAK, C(S(KC_TAB)), C(KC_TAB), KC_WFWD, KC_BSPC,
+    //  | G+S+Up  | MsLf    | MsDn    | MsRt    | Del     |   | Left    | Down    | Up      | Right   | ENTER   |
+         G(S(KC_UP)), MS_LEFT, MS_DOWN, MS_RGHT, KC_DEL,      KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  KC_ENT,
+    //  | G+S+Dn  | Btn2    | ScUp    | ScDn    | G+S+A+M |   | Btn1    | Home    | PgUp    | PgDn    | BOOT    |
+         G(S(KC_DOWN)), MS_BTN2, MS_WHLU, MS_WHLD, G(S(A(KC_M))), MS_BTN1, KC_HOME, KC_PGUP, KC_PGDN, QK_BOOT,
     //                                | TO(0)   | (none)  |   | RAlt    | TO(1)   |
                                        TO(_BASE), KC_NO,       KC_RALT, TO(_SYMBOLS),
     //  Module positions

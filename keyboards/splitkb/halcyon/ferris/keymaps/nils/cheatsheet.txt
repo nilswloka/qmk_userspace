@@ -59,11 +59,11 @@ LAYER 3 -- NAV
 ==========================================================================
 
 +------+------+------+------+------+   +------+------+------+------+------+
-|      | ScLf | MsUp | ScRt |      |   | Back | PTab | NTab | Fwd  | Bksp |
+| R Lf | ScLf | MsUp | ScRt | R Rt |   | Back | PTab | NTab | Fwd  | Bksp |
 +------+------+------+------+------+   +------+------+------+------+------+
-|      | MsLf | MsDn | MsRt | Del  |   | Left | Down |  Up  |Right |Enter |
+| R Up | MsLf | MsDn | MsRt | Del  |   | Left | Down |  Up  |Right |Enter |
 +------+------+------+------+------+   +------+------+------+------+------+
-|      | Btn2 | ScUp | ScDn |      |   | Btn1 | Home | PgUp | PgDn | BOOT |
+| R Dn | Btn2 | ScUp | ScDn | R Max|   | Btn1 | Home | PgUp | PgDn | BOOT |
 +------+------+------+------+------+   +------+------+------+------+------+
                      +------+------+   +------+------+
                      |TO(0) |      |   | RAlt |TO(1) |
@@ -72,6 +72,8 @@ LAYER 3 -- NAV
 Mouse: MsUp/Dn/Lf/Rt = pointer, ScUp/Dn/Lf/Rt = scroll wheel
        Btn1 = left click, Btn2 = right click
 Browser: PTab = prev tab (Ctrl+Shift+Tab), NTab = next tab (Ctrl+Tab)
+Rectangle: R Lf/Rt/Up/Dn = tile left/right/top/bottom (Gui+Shift+arrow)
+           R Max = maximize (Gui+Shift+Alt+M)
 
 !! BOOT = enters DFU mode for flashing (bottom-right, layer 3 only)
 
