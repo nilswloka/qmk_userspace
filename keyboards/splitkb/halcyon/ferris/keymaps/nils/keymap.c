@@ -6,6 +6,47 @@
 #define _NUMBERS 2
 #define _NAV     3
 
+// LED indices (from g_led_config in halcyon.c)
+// Left hand: LAYOUT visual order maps pinky→col4, inner→col0
+// Right hand: LAYOUT visual order maps inner→col0, pinky→col4
+#define LED_L_THUMB_OUTER 21   // OSM Shift position
+#define LED_L_THUMB_INNER 22   // Space/Meh position
+#define LED_R_THUMB_INNER 44   // OSM Ctrl position
+#define LED_R_THUMB_OUTER 45   // TO(layer) position
+
+// Home row mod keys (base layer)
+#define LED_A_ALT   11  // left pinky home
+#define LED_O_GUI   12  // left ring home
+#define LED_N_GUI   37  // right ring home
+#define LED_S_ALT   38  // right pinky home
+
+// Navigation keys shared across layers 1-2
+#define LED_ESC     6   // left top pinky
+#define LED_TAB     11  // left home pinky (same physical key as a)
+#define LED_BKSP    33  // right top inner
+#define LED_ENTER   38  // right home pinky (same physical key as s)
+
+// Arrow keys (nav layer, right home row)
+#define LED_LEFT    34
+#define LED_DOWN    35
+#define LED_UP      36
+#define LED_RIGHT   37
+
+// Layer background colors (H, S, V)
+#define HSV_RGB_BASE     0,   0,  40   // dim white
+#define HSV_RGB_SYMBOLS  85, 255, 120  // green
+#define HSV_RGB_NUMBERS 170, 255, 120  // blue
+#define HSV_RGB_NAV      43, 255, 120  // yellow
+
+// Functional highlight: same hue as layer, full brightness
+#define HSV_RGB_HIGHLIGHT_BASE     0,   0, 255
+#define HSV_RGB_HIGHLIGHT_SYMBOLS  85, 255, 255
+#define HSV_RGB_HIGHLIGHT_NUMBERS 170, 255, 255
+#define HSV_RGB_HIGHLIGHT_NAV      43, 255, 255
+
+// One-shot modifier indicator
+#define HSV_RGB_OSM_ARMED  0, 255, 150  // solid red
+
 // Tap-dance indices
 enum {
     TD_COMM_DASH,  // tap = , / hold = -
