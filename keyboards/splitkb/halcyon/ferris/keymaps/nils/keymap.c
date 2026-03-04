@@ -20,6 +20,9 @@
 #define LED_N_GUI   37  // right ring home
 #define LED_S_ALT   38  // right pinky home
 
+// One-shot AltGr key (base layer, same physical key as ESC on layer 1)
+#define LED_QUOT_RALT 6    // left top pinky
+
 // Navigation keys shared across layers 1-2
 #define LED_ESC     6   // left top pinky
 #define LED_TAB     11  // left home pinky (same physical key as a)
@@ -34,9 +37,10 @@
 
 // Tap-dance indices
 enum {
-    TD_COMM_DASH,  // tap = , / hold = -
-    TD_DOT_EXLM,  // tap = . / hold = !
-    TD_COLN_SCLN,  // tap = : / hold = ;
+    TD_COMM_DASH,   // tap = , / hold = -
+    TD_DOT_EXLM,   // tap = . / hold = !
+    TD_COLN_SCLN,   // tap = : / hold = ;
+    TD_QUOT_RALT,   // tap = ' / hold = one-shot RAlt (EurKey Umlauts)
 };
 
 // Tap-dance state detection
@@ -108,18 +112,35 @@ void td_coln_scln_reset(tap_dance_state_t *state, void *user_data) {
     }
 }
 
+void td_quot_ralt_finished(tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case TD_SINGLE_TAP:  register_code(KC_QUOT); break;
+        case TD_SINGLE_HOLD: add_oneshot_mods(MOD_BIT(KC_RALT)); break;
+        default: break;
+    }
+}
+
+void td_quot_ralt_reset(tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case TD_SINGLE_TAP:  unregister_code(KC_QUOT); break;
+        default: break;
+    }
+}
+
 tap_dance_action_t tap_dance_actions[] = {
     [TD_COMM_DASH] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_comm_dash_finished, td_comm_dash_reset),
     [TD_DOT_EXLM]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_dot_exlm_finished, td_dot_exlm_reset),
     [TD_COLN_SCLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_coln_scln_finished, td_coln_scln_reset),
+    [TD_QUOT_RALT]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_quot_ralt_finished, td_quot_ralt_reset),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BASE] = LAYOUT_ferris_hlc(
     //  +--------+-----------------+----------------+---------+---------+   +---------+---------+---------+------------+------------+
-    //  | '      | , / -           | . / !          | p       | y       |   | f       | g       | c       | r          | l          |
-         KC_QUOT,  TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P,     KC_Y,        KC_F,     KC_G,     KC_C,     KC_R,        KC_L,
+    //  | '/AltGr | , / -           | . / !          | p       | y       |   | f       | g       | c       | r          | l          |
+         TD(TD_QUOT_RALT), TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P, KC_Y,    KC_F,     KC_G,     KC_C,     KC_R,        KC_L,
     //  | a/Alt  | o/GUI           | e              | u       | i       |   | d       | h       | t       | n/GUI      | s/Alt      |
          LALT_T(KC_A), LGUI_T(KC_O), KC_E,           KC_U,     KC_I,        KC_D,     KC_H,     KC_T,     RGUI_T(KC_N), LALT_T(KC_S),
     //  | : / ;  | q               | j              | k       | x       |   | b       | m       | w       | v          | z          |
@@ -285,6 +306,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         set_osm_led(LED_L_THUMB_OUTER, osm_lock & MOD_MASK_SHIFT, now);
     if (osm_lock & MOD_MASK_CTRL || osm & MOD_MASK_CTRL)
         set_osm_led(LED_R_THUMB_INNER, osm_lock & MOD_MASK_CTRL, now);
+    if (osm_lock & MOD_BIT(KC_RALT) || osm & MOD_BIT(KC_RALT))
+        set_osm_led(LED_QUOT_RALT, osm_lock & MOD_BIT(KC_RALT), now);
 
     return false;
 }
@@ -375,8 +398,9 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     uint8_t current_layer = get_highest_layer(layer_state | default_layer_state);
     uint8_t osm_mods  = get_oneshot_mods() | get_oneshot_locked_mods();
-    uint8_t osm_state = ((osm_mods & MOD_MASK_SHIFT) ? 1 : 0)
-                      | ((osm_mods & MOD_MASK_CTRL)  ? 2 : 0);
+    uint8_t osm_state = ((osm_mods & MOD_MASK_SHIFT)  ? 1 : 0)
+                      | ((osm_mods & MOD_MASK_CTRL)   ? 2 : 0)
+                      | ((osm_mods & MOD_BIT(KC_RALT)) ? 4 : 0);
 
     bool layer_changed = (layer_state != last_layer);
     bool osm_changed   = (osm_state != last_osm);
@@ -413,6 +437,12 @@ bool display_module_housekeeping_task_user(bool second_display) {
         qp_drawtext_recolor(lcd_surface, 5, 150, font_underline, "CTL", lh, ls, lv, HSV_BLACK);
     } else {
         qp_drawtext_recolor(lcd_surface, 5, 150, font_regular, "CTL", HSV_OSM_OFF, HSV_BLACK);
+    }
+
+    if (osm_state & 4) {
+        qp_drawtext_recolor(lcd_surface, 5, 180, font_underline, "ALT", lh, ls, lv, HSV_BLACK);
+    } else {
+        qp_drawtext_recolor(lcd_surface, 5, 180, font_regular, "ALT", HSV_OSM_OFF, HSV_BLACK);
     }
     last_osm = osm_state;
 
