@@ -158,8 +158,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          KC_ESC,   KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,     KC_CIRC,  KC_AMPR,  KC_ASTR,  KC_SCLN,  KC_BSPC,
     //  | TAB     | =       | '       | "       | +       |   | \       | {       | }       | |       | ENTER   |
          KC_TAB,   KC_EQL,   KC_QUOT,  KC_DQUO,  KC_PLUS,     KC_BSLS,  KC_LCBR,  KC_RCBR,  KC_PIPE,  KC_ENT,
-    //  | ~       | `       | /       | _       | (none)  |   | [       | (       | )       | ]       | TO(3)   |
-         KC_TILD,  KC_GRV,   KC_SLSH,  KC_UNDS,  KC_NO,       KC_LBRC,  KC_LPRN,  KC_RPRN,  KC_RBRC,  TO(_NAV),
+    //  | ~       | `       | /       | _       | ?       |   | [       | (       | )       | ]       | TO(3)   |
+         KC_TILD,  KC_GRV,   KC_SLSH,  KC_UNDS,  KC_QUES,     KC_LBRC,  KC_LPRN,  KC_RPRN,  KC_RBRC,  TO(_NAV),
     //                                | TO(0)   | OSM SFT |   | RAlt    | TO(2)   |
                                        TO(_BASE), OSM(MOD_LSFT), KC_RALT, TO(_NUMBERS),
     //  Module positions
@@ -227,6 +227,9 @@ combo_t key_combos[] = {
 
 // ─── RGB Matrix Indicators ────────────────────────────────────────────
 
+// Precomputed unlocked OSM color (HSV 0, 255, 150 → pure red at value 150)
+static const RGB osm_unlocked_rgb = {150, 0, 0};
+
 static inline void set_osm_led(uint8_t led, bool locked, uint16_t now) {
     if (locked) {
         uint16_t t     = now % 500;
@@ -236,66 +239,74 @@ static inline void set_osm_led(uint8_t led, bool locked, uint16_t now) {
         RGB      rgb   = hsv_to_rgb(hsv);
         rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
     } else {
-        HSV hsv = {0, 255, 150};
-        RGB rgb = hsv_to_rgb(hsv);
-        rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
+        rgb_matrix_set_color(led, osm_unlocked_rgb.r, osm_unlocked_rgb.g, osm_unlocked_rgb.b);
     }
 }
+
+// Cached layer colors — recomputed only on layer change
+static RGB cached_bg_rgb;
+static RGB cached_hi_rgb;
+static uint8_t cached_layer = 0xFF;
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
-    // Pick layer background color
-    uint8_t bg_h, bg_s, bg_v;
-    switch (layer) {
-        case _BASE:    bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
-        case _SYMBOLS: bg_h = 85;  bg_s = 255; bg_v = 120; break;
-        case _NUMBERS: bg_h = 170; bg_s = 255; bg_v = 120; break;
-        case _NAV:     bg_h = 43;  bg_s = 255; bg_v = 120; break;
-        default:       bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
+    if (layer != cached_layer) {
+        uint8_t bg_h, bg_s, bg_v;
+        switch (layer) {
+            case _BASE:    bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
+            case _SYMBOLS: bg_h = 85;  bg_s = 255; bg_v = 120; break;
+            case _NUMBERS: bg_h = 170; bg_s = 255; bg_v = 120; break;
+            case _NAV:     bg_h = 43;  bg_s = 255; bg_v = 120; break;
+            default:       bg_h = 0;   bg_s = 0;   bg_v = 40;  break;
+        }
+        HSV bg_hsv = {bg_h, bg_s, bg_v};
+        cached_bg_rgb = hsv_to_rgb(bg_hsv);
+
+        uint8_t hi_s2 = (layer == _BASE) ? 0 : 255;
+        HSV hi_hsv = {bg_h, hi_s2, 255};
+        cached_hi_rgb = hsv_to_rgb(hi_hsv);
+
+        cached_layer = layer;
     }
 
-    // Convert HSV to RGB once for the background
-    HSV bg_hsv = {bg_h, bg_s, bg_v};
-    RGB bg_rgb = hsv_to_rgb(bg_hsv);
+    RGB bg_rgb = cached_bg_rgb;
+    RGB hi_rgb = cached_hi_rgb;
 
     for (uint8_t i = led_min; i < led_max; i++) {
-        if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
-            rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);  // underglow matches layer
-        } else {
-            rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);
-        }
+        rgb_matrix_set_color(i, bg_rgb.r, bg_rgb.g, bg_rgb.b);
     }
 
-    // Pick highlight color (same hue, full brightness)
-    uint8_t hi_h = bg_h, hi_s = (layer == _BASE) ? 0 : 255, hi_v = 255;
-    HSV hi_hsv = {hi_h, hi_s, hi_v};
-    RGB hi_rgb = hsv_to_rgb(hi_hsv);
+    // Helper: only set LEDs within the current batch range
+    #define SET_HI(led) if ((led) >= led_min && (led) < led_max) \
+        rgb_matrix_set_color((led), hi_rgb.r, hi_rgb.g, hi_rgb.b)
 
     switch (layer) {
         case _BASE:
             // Home row mods
-            rgb_matrix_set_color(LED_A_ALT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_O_GUI, hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_N_GUI, hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_S_ALT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            SET_HI(LED_A_ALT);
+            SET_HI(LED_O_GUI);
+            SET_HI(LED_N_GUI);
+            SET_HI(LED_S_ALT);
             break;
         case _SYMBOLS:
         case _NUMBERS:
             // Navigation keys
-            rgb_matrix_set_color(LED_ESC,   hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_TAB,   hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_BKSP,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_ENTER, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            SET_HI(LED_ESC);
+            SET_HI(LED_TAB);
+            SET_HI(LED_BKSP);
+            SET_HI(LED_ENTER);
             break;
         case _NAV:
             // Arrow keys
-            rgb_matrix_set_color(LED_LEFT,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_DOWN,  hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_UP,    hi_rgb.r, hi_rgb.g, hi_rgb.b);
-            rgb_matrix_set_color(LED_RIGHT, hi_rgb.r, hi_rgb.g, hi_rgb.b);
+            SET_HI(LED_LEFT);
+            SET_HI(LED_DOWN);
+            SET_HI(LED_UP);
+            SET_HI(LED_RIGHT);
             break;
     }
+
+    #undef SET_HI
 
     // One-shot modifier indicators
     uint8_t osm      = get_oneshot_mods();
@@ -303,21 +314,26 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint16_t now     = timer_read();
 
     if (osm_lock & MOD_MASK_SHIFT || osm & MOD_MASK_SHIFT)
-        set_osm_led(LED_L_THUMB_OUTER, osm_lock & MOD_MASK_SHIFT, now);
+        if (LED_L_THUMB_OUTER >= led_min && LED_L_THUMB_OUTER < led_max)
+            set_osm_led(LED_L_THUMB_OUTER, osm_lock & MOD_MASK_SHIFT, now);
     if (osm_lock & MOD_MASK_CTRL || osm & MOD_MASK_CTRL)
-        set_osm_led(LED_R_THUMB_INNER, osm_lock & MOD_MASK_CTRL, now);
+        if (LED_R_THUMB_INNER >= led_min && LED_R_THUMB_INNER < led_max)
+            set_osm_led(LED_R_THUMB_INNER, osm_lock & MOD_MASK_CTRL, now);
     if (osm_lock & MOD_BIT(KC_RALT) || osm & MOD_BIT(KC_RALT))
-        set_osm_led(LED_QUOT_RALT, osm_lock & MOD_BIT(KC_RALT), now);
+        if (LED_QUOT_RALT >= led_min && LED_QUOT_RALT < led_max)
+            set_osm_led(LED_QUOT_RALT, osm_lock & MOD_BIT(KC_RALT), now);
 
     return false;
 }
 
 // ─── TFT Display (secondary/left half) ────────────────────────────────
 //
-// The display module source (hlc_tft_display.c) is not compiled when
-// HLC_CIRQUE_TRACKPAD is set, so we initialise the ST7789 LCD and render
-// directly.  The ST7789 SPI driver and Quantum Painter are always built
-// by the Halcyon base rules.
+// With HLC_TFT_DISPLAY the splitkb module (hlc_tft_display.c) owns LCD
+// init and the surface→LCD flush.  We only draw custom content onto the
+// module's global lcd_surface via the _user callbacks.
+//
+// With HLC_CIRQUE_TRACKPAD the module is not compiled, so we initialise
+// the ST7789 and flush ourselves.
 //
 // Layout (135×240 portrait):
 //   Top:    layer number image (colored per layer)
@@ -336,19 +352,26 @@ extern const uint8_t gfx_2[];
 extern const uint8_t gfx_3[];
 extern const uint8_t gfx_undef[];
 
-// Layer HSV colors (from hlc_tft_display.h — not compiled with trackpad flag)
+#ifdef HLC_TFT_DISPLAY
+// Module provides lcd and lcd_surface as globals
+extern painter_device_t lcd;
+extern painter_device_t lcd_surface;
+#else
+// Layer HSV colors (from hlc_tft_display.h — not available without the module)
 #define HSV_LAYER_0   0,   0, 160
 #define HSV_LAYER_1  23,  89, 255
 #define HSV_LAYER_2  43,  71, 255
 #define HSV_LAYER_3   0,  82, 255
+static painter_device_t      lcd;
+static painter_device_t      lcd_surface;
+#endif
 
 // Dim color for inactive one-shot indicators
 #define HSV_OSM_OFF   0, 0, 60
 
-static painter_device_t      lcd;
-static painter_device_t      lcd_surface;
-static painter_font_handle_t font_regular;
-static painter_font_handle_t font_underline;
+static painter_font_handle_t  font_regular;
+static painter_font_handle_t  font_underline;
+static painter_image_handle_t img_layers[5];  // 0-3 = layer images, 4 = undef
 
 static void get_layer_hsv(uint8_t layer, uint8_t *h, uint8_t *s, uint8_t *v) {
     switch (layer) {
@@ -361,9 +384,10 @@ static void get_layer_hsv(uint8_t layer, uint8_t *h, uint8_t *s, uint8_t *v) {
 }
 
 bool module_post_init_user(void) {
-    if (is_keyboard_master()) return false;
+    if (is_keyboard_master()) return true;
 
-    // Turn on TFT backlight (GP27)
+#ifndef HLC_TFT_DISPLAY
+    // No display module — we own hardware init
     gpio_set_pin_output(GP27);
     gpio_write_pin_high(GP27);
 
@@ -383,15 +407,22 @@ bool module_post_init_user(void) {
     qp_rect(lcd_surface, 0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1, HSV_BLACK, true);
     qp_surface_draw(lcd_surface, lcd, 0, 0, 0);
     qp_flush(lcd);
+#endif
 
     font_regular   = qp_load_font_mem(font_Retron2000_27);
     font_underline = qp_load_font_mem(font_Retron2000_underline_27);
 
-    return false;
+    img_layers[0] = qp_load_image_mem(gfx_0);
+    img_layers[1] = qp_load_image_mem(gfx_1);
+    img_layers[2] = qp_load_image_mem(gfx_2);
+    img_layers[3] = qp_load_image_mem(gfx_3);
+    img_layers[4] = qp_load_image_mem(gfx_undef);
+
+    return true;
 }
 
 bool display_module_housekeeping_task_user(bool second_display) {
-    if (is_keyboard_master()) return false;
+    if (is_keyboard_master()) return true;
 
     static layer_state_t last_layer = ~(layer_state_t)0;
     static uint8_t       last_osm   = 0xFF;
@@ -405,50 +436,49 @@ bool display_module_housekeeping_task_user(bool second_display) {
     bool layer_changed = (layer_state != last_layer);
     bool osm_changed   = (osm_state != last_osm);
 
-    if (!layer_changed && !osm_changed) return false;
+    if (!layer_changed && !osm_changed) return true;
 
     uint8_t lh, ls, lv;
     get_layer_hsv(current_layer, &lh, &ls, &lv);
 
     // Layer number image (top of screen)
     if (layer_changed) {
-        painter_image_handle_t img;
-        switch (current_layer) {
-            case 0:  img = qp_load_image_mem(gfx_0); break;
-            case 1:  img = qp_load_image_mem(gfx_1); break;
-            case 2:  img = qp_load_image_mem(gfx_2); break;
-            case 3:  img = qp_load_image_mem(gfx_3); break;
-            default: img = qp_load_image_mem(gfx_undef); break;
-        }
-        qp_drawimage_recolor(lcd_surface, 5, 5, img, lh, ls, lv, HSV_BLACK);
-        qp_close_image(img);
+        uint8_t idx = (current_layer <= 3) ? current_layer : 4;
+        qp_drawimage_recolor(lcd_surface, 5, 5, img_layers[idx], lh, ls, lv, HSV_BLACK);
         last_layer = layer_state;
     }
 
     // One-shot modifier indicators (mid-screen)
-    // Redrawn on layer OR osm change — active indicators use layer color
-    if (osm_state & 1) {
-        qp_drawtext_recolor(lcd_surface, 5, 120, font_underline, "SFT", lh, ls, lv, HSV_BLACK);
-    } else {
-        qp_drawtext_recolor(lcd_surface, 5, 120, font_regular, "SFT", HSV_OSM_OFF, HSV_BLACK);
+    // Only redraw each label if its state or the layer color changed
+    uint8_t osm_diff = osm_state ^ last_osm;
+
+    if (layer_changed || (osm_diff & 1)) {
+        if (osm_state & 1)
+            qp_drawtext_recolor(lcd_surface, 5, 120, font_underline, "SFT", lh, ls, lv, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 120, font_regular, "SFT", HSV_OSM_OFF, HSV_BLACK);
     }
 
-    if (osm_state & 2) {
-        qp_drawtext_recolor(lcd_surface, 5, 150, font_underline, "CTL", lh, ls, lv, HSV_BLACK);
-    } else {
-        qp_drawtext_recolor(lcd_surface, 5, 150, font_regular, "CTL", HSV_OSM_OFF, HSV_BLACK);
+    if (layer_changed || (osm_diff & 2)) {
+        if (osm_state & 2)
+            qp_drawtext_recolor(lcd_surface, 5, 150, font_underline, "CTL", lh, ls, lv, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 150, font_regular, "CTL", HSV_OSM_OFF, HSV_BLACK);
     }
 
-    if (osm_state & 4) {
-        qp_drawtext_recolor(lcd_surface, 5, 180, font_underline, "ALT", lh, ls, lv, HSV_BLACK);
-    } else {
-        qp_drawtext_recolor(lcd_surface, 5, 180, font_regular, "ALT", HSV_OSM_OFF, HSV_BLACK);
+    if (layer_changed || (osm_diff & 4)) {
+        if (osm_state & 4)
+            qp_drawtext_recolor(lcd_surface, 5, 180, font_underline, "ALT", lh, ls, lv, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 180, font_regular, "ALT", HSV_OSM_OFF, HSV_BLACK);
     }
     last_osm = osm_state;
 
-    // Push surface to physical LCD
+#ifndef HLC_TFT_DISPLAY
+    // No display module — we own the flush
     qp_surface_draw(lcd_surface, lcd, 0, 0, 0);
     qp_flush(lcd);
+#endif
 
-    return false;
+    return true;
 }

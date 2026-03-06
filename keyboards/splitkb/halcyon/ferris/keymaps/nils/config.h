@@ -16,7 +16,6 @@
 
 // Combos
 #define COMBO_TERM 40   // Max ms between combo key presses
-#define COMBO_COUNT 6
 
 // RGB Matrix defaults
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
