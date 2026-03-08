@@ -21,3 +21,6 @@ SRC += $(HLC_DISPLAY_PATH)/graphics/fonts/Retron2000-27.qff.c \
        $(HLC_DISPLAY_PATH)/graphics/numbers/3.qgf.c \
        $(HLC_DISPLAY_PATH)/graphics/numbers/undef.qgf.c
 endif
+
+# Custom fonts for OSM indicators
+SRC += keyboards/splitkb/halcyon/ferris/keymaps/nils/fonts/Hack-16.qff.c
