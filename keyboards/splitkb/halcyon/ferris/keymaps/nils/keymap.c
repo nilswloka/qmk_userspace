@@ -20,9 +20,6 @@
 #define LED_N_GUI   37  // right ring home
 #define LED_S_ALT   38  // right pinky home
 
-// One-shot AltGr key (base layer, same physical key as ESC on layer 1)
-#define LED_QUOT_RALT 6    // left top pinky
-
 // Navigation keys shared across layers 1-2
 #define LED_ESC     6   // left top pinky
 #define LED_TAB     11  // left home pinky (same physical key as a)
@@ -40,7 +37,6 @@ enum {
     TD_COMM_DASH,   // tap = , / hold = -
     TD_DOT_EXLM,   // tap = . / hold = !
     TD_COLN_SCLN,   // tap = : / hold = ;
-    TD_QUOT_RALT,   // tap = ' / hold = one-shot RAlt (EurKey Umlauts)
 };
 
 // Tap-dance state detection
@@ -112,42 +108,25 @@ void td_coln_scln_reset(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void td_quot_ralt_finished(tap_dance_state_t *state, void *user_data) {
-    td_state = cur_dance(state);
-    switch (td_state) {
-        case TD_SINGLE_TAP:  register_code(KC_QUOT); break;
-        case TD_SINGLE_HOLD: add_oneshot_mods(MOD_BIT(KC_RALT)); break;
-        default: break;
-    }
-}
-
-void td_quot_ralt_reset(tap_dance_state_t *state, void *user_data) {
-    switch (td_state) {
-        case TD_SINGLE_TAP:  unregister_code(KC_QUOT); break;
-        default: break;
-    }
-}
-
 tap_dance_action_t tap_dance_actions[] = {
     [TD_COMM_DASH] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_comm_dash_finished, td_comm_dash_reset),
     [TD_DOT_EXLM]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_dot_exlm_finished, td_dot_exlm_reset),
     [TD_COLN_SCLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_coln_scln_finished, td_coln_scln_reset),
-    [TD_QUOT_RALT]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_quot_ralt_finished, td_quot_ralt_reset),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BASE] = LAYOUT_ferris_hlc(
     //  +--------+-----------------+----------------+---------+---------+   +---------+---------+---------+------------+------------+
-    //  | '/AltGr | , / -           | . / !          | p       | y       |   | f       | g       | c       | r          | l          |
-         TD(TD_QUOT_RALT), TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P, KC_Y,    KC_F,     KC_G,     KC_C,     KC_R,        KC_L,
+    //  | '      | , / -           | . / !          | p       | y       |   | f       | g       | c       | r          | l          |
+         KC_QUOT,          TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P, KC_Y,    KC_F,     KC_G,     KC_C,     KC_R,        KC_L,
     //  | a/Alt  | o/GUI           | e              | u       | i       |   | d       | h       | t       | n/GUI      | s/Alt      |
          LALT_T(KC_A), LGUI_T(KC_O), KC_E,           KC_U,     KC_I,        KC_D,     KC_H,     KC_T,     RGUI_T(KC_N), LALT_T(KC_S),
     //  | : / ;  | q               | j              | k       | x       |   | b       | m       | w       | v          | z          |
          TD(TD_COLN_SCLN), KC_Q,     KC_J,           KC_K,     KC_X,        KC_B,     KC_M,     KC_W,     KC_V,        KC_Z,
     //  +--------+-----------------+---+------------+---------+         +---+         +---------+---------+------------+------------+
-    //                                 | SPC/MEH    | OSM SFT |         |   | OSM CTL | TO(1)   |
-                                        MT(MOD_MEH, KC_SPC), OSM(MOD_LSFT), OSM(MOD_LCTL), TO(_SYMBOLS),
+    //                                 | SPC        | OSM SFT |         |   | OSM CTL | TO(1)   |
+                                        KC_SPC,              OSM(MOD_LSFT), OSM(MOD_LCTL), TO(_SYMBOLS),
     //  Module positions (all unused)
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
     ),
@@ -209,6 +188,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // Left hand → opening bracket, right hand → closing bracket
 // Top row: ()   Home row: []   Bottom row: {}
 
+// OSM AltGr combos (index + middle, top row, symmetric)
+const uint16_t PROGMEM combo_ralt_r[]   = {KC_G, KC_C, COMBO_END};
+const uint16_t PROGMEM combo_ralt_l[]   = {KC_P, TD(TD_DOT_EXLM), COMBO_END};
+
 const uint16_t PROGMEM combo_lparen[]   = {KC_P, KC_Y, COMBO_END};
 const uint16_t PROGMEM combo_rparen[]   = {KC_F, KC_G, COMBO_END};
 const uint16_t PROGMEM combo_lbracket[] = {KC_U, KC_I, COMBO_END};
@@ -217,6 +200,8 @@ const uint16_t PROGMEM combo_lbrace[]   = {KC_K, KC_X, COMBO_END};
 const uint16_t PROGMEM combo_rbrace[]   = {KC_B, KC_M, COMBO_END};
 
 combo_t key_combos[] = {
+    COMBO(combo_ralt_r,   OSM(MOD_RALT)),
+    COMBO(combo_ralt_l,   OSM(MOD_RALT)),
     COMBO(combo_lparen,   KC_LPRN),
     COMBO(combo_rparen,   KC_RPRN),
     COMBO(combo_lbracket, KC_LBRC),
@@ -319,10 +304,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     if (osm_lock & MOD_MASK_CTRL || osm & MOD_MASK_CTRL)
         if (LED_R_THUMB_INNER >= led_min && LED_R_THUMB_INNER < led_max)
             set_osm_led(LED_R_THUMB_INNER, osm_lock & MOD_MASK_CTRL, now);
-    if (osm_lock & MOD_BIT(KC_RALT) || osm & MOD_BIT(KC_RALT))
-        if (LED_QUOT_RALT >= led_min && LED_QUOT_RALT < led_max)
-            set_osm_led(LED_QUOT_RALT, osm_lock & MOD_BIT(KC_RALT), now);
-
     return false;
 }
 
