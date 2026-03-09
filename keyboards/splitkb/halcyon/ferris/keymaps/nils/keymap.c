@@ -14,11 +14,6 @@
 #define LED_R_THUMB_INNER 44   // OSM Ctrl position
 #define LED_R_THUMB_OUTER 45   // TO(layer) position
 
-// Home row mod keys (base layer)
-#define LED_A_ALT   11  // left pinky home
-#define LED_O_GUI   12  // left ring home
-#define LED_N_GUI   37  // right ring home
-#define LED_S_ALT   38  // right pinky home
 
 // Navigation keys shared across layers 1-2
 #define LED_ESC     6   // left top pinky
@@ -120,8 +115,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //  +--------+-----------------+----------------+---------+---------+   +---------+---------+---------+------------+------------+
     //  | '      | , / -           | . / !          | p       | y       |   | f       | g       | c       | r          | l          |
          KC_QUOT,          TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P, KC_Y,    KC_F,     KC_G,     KC_C,     KC_R,        KC_L,
-    //  | a/Alt  | o/GUI           | e              | u       | i       |   | d       | h       | t       | n/GUI      | s/Alt      |
-         LALT_T(KC_A), LGUI_T(KC_O), KC_E,           KC_U,     KC_I,        KC_D,     KC_H,     KC_T,     RGUI_T(KC_N), LALT_T(KC_S),
+    //  | a       | o               | e              | u       | i       |   | d       | h       | t       | n          | s          |
+         KC_A,         KC_O,         KC_E,           KC_U,     KC_I,        KC_D,     KC_H,     KC_T,     KC_N,         KC_S,
     //  | : / ;  | q               | j              | k       | x       |   | b       | m       | w       | v          | z          |
          TD(TD_COLN_SCLN), KC_Q,     KC_J,           KC_K,     KC_X,        KC_B,     KC_M,     KC_W,     KC_V,        KC_Z,
     //  +--------+-----------------+---+------------+---------+         +---+         +---------+---------+------------+------------+
@@ -199,6 +194,16 @@ const uint16_t PROGMEM combo_rbracket[] = {KC_D, KC_H, COMBO_END};
 const uint16_t PROGMEM combo_lbrace[]   = {KC_K, KC_X, COMBO_END};
 const uint16_t PROGMEM combo_rbrace[]   = {KC_B, KC_M, COMBO_END};
 
+// OSM modifiers — 3-key combos on top row (all layers)
+// Left 1-2-3 (pinky+ring+middle): OSM Alt
+const uint16_t PROGMEM combo_osm_lalt[] = {KC_QUOT, TD(TD_COMM_DASH), TD(TD_DOT_EXLM), COMBO_END};
+// Left 2-3-4 (ring+middle+index): OSM GUI
+const uint16_t PROGMEM combo_osm_lgui[] = {TD(TD_COMM_DASH), TD(TD_DOT_EXLM), KC_P, COMBO_END};
+// Right 1-2-3 (pinky+ring+middle): OSM Alt
+const uint16_t PROGMEM combo_osm_ralt[] = {KC_L, KC_R, KC_C, COMBO_END};
+// Right 2-3-4 (ring+middle+index): OSM GUI
+const uint16_t PROGMEM combo_osm_rgui[] = {KC_R, KC_C, KC_G, COMBO_END};
+
 combo_t key_combos[] = {
     COMBO(combo_ralt_r,   OSM(MOD_RALT)),
     COMBO(combo_ralt_l,   OSM(MOD_RALT)),
@@ -208,6 +213,10 @@ combo_t key_combos[] = {
     COMBO(combo_rbracket, KC_RBRC),
     COMBO(combo_lbrace,   KC_LCBR),
     COMBO(combo_rbrace,   KC_RCBR),
+    COMBO(combo_osm_lalt, OSM(MOD_LALT)),
+    COMBO(combo_osm_lgui, OSM(MOD_LGUI)),
+    COMBO(combo_osm_ralt, OSM(MOD_LALT)),
+    COMBO(combo_osm_rgui, OSM(MOD_RGUI)),
 };
 
 // ─── RGB Matrix Indicators ────────────────────────────────────────────
@@ -267,13 +276,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color((led), hi_rgb.r, hi_rgb.g, hi_rgb.b)
 
     switch (layer) {
-        case _BASE:
-            // Home row mods
-            SET_HI(LED_A_ALT);
-            SET_HI(LED_O_GUI);
-            SET_HI(LED_N_GUI);
-            SET_HI(LED_S_ALT);
-            break;
         case _SYMBOLS:
         case _NUMBERS:
             // Navigation keys
@@ -326,7 +328,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
 // Graphics assets (object files added to SRC in rules.mk)
 extern const uint8_t font_Retron2000_27[];
-extern const uint8_t font_Retron2000_underline_27[];
+extern const uint8_t font_Hack_16[];
 extern const uint8_t gfx_0[];
 extern const uint8_t gfx_1[];
 extern const uint8_t gfx_2[];
@@ -350,9 +352,9 @@ static painter_device_t      lcd_surface;
 // Dim color for inactive one-shot indicators
 #define HSV_OSM_OFF   0, 0, 60
 
-static painter_font_handle_t  font_regular;
-static painter_font_handle_t  font_underline;
-static painter_image_handle_t img_layers[5];  // 0-3 = layer images, 4 = undef
+static painter_font_handle_t  font_layer;     // Retron2000-27 for layer number
+static painter_font_handle_t  font_osm;       // Hack-16 for OSM indicators
+static painter_image_handle_t img_layers[5];   // 0-3 = layer images, 4 = undef
 
 static void get_layer_hsv(uint8_t layer, uint8_t *h, uint8_t *s, uint8_t *v) {
     switch (layer) {
@@ -390,8 +392,8 @@ bool module_post_init_user(void) {
     qp_flush(lcd);
 #endif
 
-    font_regular   = qp_load_font_mem(font_Retron2000_27);
-    font_underline = qp_load_font_mem(font_Retron2000_underline_27);
+    font_layer = qp_load_font_mem(font_Retron2000_27);
+    font_osm   = qp_load_font_mem(font_Hack_16);
 
     img_layers[0] = qp_load_image_mem(gfx_0);
     img_layers[1] = qp_load_image_mem(gfx_1);
@@ -404,62 +406,83 @@ bool module_post_init_user(void) {
 
 bool display_module_housekeeping_task_user(bool second_display) {
     if (is_keyboard_master()) return true;
+    // Return false to prevent the module from drawing lock indicators on top.
+    // We handle all drawing and flushing ourselves.
+    if (second_display) return false;
 
     static layer_state_t last_layer = ~(layer_state_t)0;
     static uint8_t       last_osm   = 0xFF;
+    static uint8_t       last_locks = 0xFF;
 
     uint8_t current_layer = get_highest_layer(layer_state | default_layer_state);
     uint8_t osm_mods  = get_oneshot_mods() | get_oneshot_locked_mods();
     uint8_t osm_state = ((osm_mods & MOD_MASK_SHIFT)  ? 1 : 0)
                       | ((osm_mods & MOD_MASK_CTRL)   ? 2 : 0)
-                      | ((osm_mods & MOD_BIT(KC_RALT)) ? 4 : 0);
+                      | ((osm_mods & MOD_MASK_ALT)     ? 4 : 0);
+    led_t led_state   = host_keyboard_led_state();
+    uint8_t locks     = led_state.raw & 0x07;  // caps, num, scroll
 
     bool layer_changed = (layer_state != last_layer);
     bool osm_changed   = (osm_state != last_osm);
+    bool locks_changed = (locks != last_locks);
 
-    if (!layer_changed && !osm_changed) return true;
+    if (!layer_changed && !osm_changed && !locks_changed) goto flush;
 
     uint8_t lh, ls, lv;
     get_layer_hsv(current_layer, &lh, &ls, &lv);
 
-    // Layer number image (top of screen)
+    // Layer number image (top of screen, 75×105 starting at Y=5)
     if (layer_changed) {
         uint8_t idx = (current_layer <= 3) ? current_layer : 4;
         qp_drawimage_recolor(lcd_surface, 5, 5, img_layers[idx], lh, ls, lv, HSV_BLACK);
         last_layer = layer_state;
     }
 
-    // One-shot modifier indicators (mid-screen)
-    // Only redraw each label if its state or the layer color changed
+    // One-shot modifier indicators (below layer image)
     uint8_t osm_diff = osm_state ^ last_osm;
 
     if (layer_changed || (osm_diff & 1)) {
         if (osm_state & 1)
-            qp_drawtext_recolor(lcd_surface, 5, 120, font_underline, "SFT", lh, ls, lv, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 115, font_osm, "SFT", lh, ls, lv, HSV_BLACK);
         else
-            qp_drawtext_recolor(lcd_surface, 5, 120, font_regular, "SFT", HSV_OSM_OFF, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 115, font_osm, "SFT", HSV_OSM_OFF, HSV_BLACK);
     }
 
     if (layer_changed || (osm_diff & 2)) {
         if (osm_state & 2)
-            qp_drawtext_recolor(lcd_surface, 5, 150, font_underline, "CTL", lh, ls, lv, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 133, font_osm, "CTL", lh, ls, lv, HSV_BLACK);
         else
-            qp_drawtext_recolor(lcd_surface, 5, 150, font_regular, "CTL", HSV_OSM_OFF, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 133, font_osm, "CTL", HSV_OSM_OFF, HSV_BLACK);
     }
 
     if (layer_changed || (osm_diff & 4)) {
         if (osm_state & 4)
-            qp_drawtext_recolor(lcd_surface, 5, 180, font_underline, "ALT", lh, ls, lv, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 151, font_osm, "ALT", lh, ls, lv, HSV_BLACK);
         else
-            qp_drawtext_recolor(lcd_surface, 5, 180, font_regular, "ALT", HSV_OSM_OFF, HSV_BLACK);
+            qp_drawtext_recolor(lcd_surface, 5, 151, font_osm, "ALT", HSV_OSM_OFF, HSV_BLACK);
     }
     last_osm = osm_state;
 
-#ifndef HLC_TFT_DISPLAY
-    // No display module — we own the flush
+    // Lock indicators (bottom of screen)
+    if (locks_changed) {
+        if (led_state.caps_lock)
+            qp_drawtext_recolor(lcd_surface, 5, 185, font_osm, "CAP", 0, 0, 200, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 185, font_osm, "CAP", 0, 0, 50, HSV_BLACK);
+        if (led_state.num_lock)
+            qp_drawtext_recolor(lcd_surface, 5, 203, font_osm, "NUM", 0, 0, 200, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 203, font_osm, "NUM", 0, 0, 50, HSV_BLACK);
+        if (led_state.scroll_lock)
+            qp_drawtext_recolor(lcd_surface, 5, 221, font_osm, "SCR", 0, 0, 200, HSV_BLACK);
+        else
+            qp_drawtext_recolor(lcd_surface, 5, 221, font_osm, "SCR", 0, 0, 50, HSV_BLACK);
+        last_locks = locks;
+    }
+
+flush:
     qp_surface_draw(lcd_surface, lcd, 0, 0, 0);
     qp_flush(lcd);
-#endif
 
-    return true;
+    return false;
 }

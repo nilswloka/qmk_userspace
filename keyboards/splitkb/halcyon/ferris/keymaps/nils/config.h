@@ -15,7 +15,8 @@
 #define ENCODER_RESOLUTION 2
 
 // Combos
-#define COMBO_TERM 40   // Max ms between combo key presses
+#define COMBO_TERM 40              // Max ms between combo key presses
+#define COMBO_ONLY_FROM_LAYER 0    // Always match combos against base layer
 
 // RGB Matrix defaults
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
