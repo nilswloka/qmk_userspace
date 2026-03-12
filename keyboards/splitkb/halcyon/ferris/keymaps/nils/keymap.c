@@ -162,8 +162,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          G(S(KC_UP)), MS_LEFT, MS_DOWN, MS_RGHT, KC_DEL,      KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  KC_ENT,
     //  | G+S+Dn  | Btn2    | ScUp    | ScDn    | G+S+A+M |   | Btn1    | Home    | PgUp    | PgDn    | BOOT    |
          G(S(KC_DOWN)), MS_BTN2, MS_WHLU, MS_WHLD, G(S(A(KC_M))), MS_BTN1, KC_HOME, KC_PGUP, KC_PGDN, QK_BOOT,
-    //                                | TO(0)   | (none)  |   | RAlt    | TO(1)   |
-                                       TO(_BASE), KC_NO,       KC_RALT, TO(_SYMBOLS),
+    //                                | TO(0)   | OSM SFT |   | RAlt    | TO(1)   |
+                                       TO(_BASE), OSM(MOD_LSFT), KC_RALT, TO(_SYMBOLS),
     //  Module positions
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
     ),

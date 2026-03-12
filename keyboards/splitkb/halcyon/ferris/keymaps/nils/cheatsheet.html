@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4 portrait; margin: 10mm 10mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; color: #1a1a1a; }
+  h1 { font-size: 14px; font-weight: 700; display: inline; }
+  .header { border-bottom: 2px solid #333; padding-bottom: 4px; margin-bottom: 8px; }
+  .header .sub { font-size: 8.5px; color: #666; float: right; margin-top: 4px; }
+
+  .layer { border: 1.5px solid #ccc; border-radius: 4px; padding: 5px 6px; margin-bottom: 7px; }
+  .layer.base { border-color: #888; }
+  .layer.symbols { border-color: #4a4; }
+  .layer.numbers { border-color: #44a; }
+  .layer.nav { border-color: #aa4; }
+  .ltitle { font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+  .layer.base .ltitle { color: #555; }
+  .layer.symbols .ltitle { color: #3a8a3a; }
+  .layer.numbers .ltitle { color: #3a3aaa; }
+  .layer.nav .ltitle { color: #9a8a20; }
+
+  table.kb { border-collapse: separate; border-spacing: 2px; width: 100%; table-layout: fixed; }
+  table.kb td {
+    height: 30px; text-align: center; vertical-align: middle;
+    border: 1px solid #bbb; border-radius: 3px;
+    background: #f8f8f8; font-size: 10px; font-weight: 600;
+    padding: 1px 2px; position: relative;
+  }
+  table.kb td.gap { border: none; background: none; width: 8px; padding: 0; }
+  table.kb td.thumb { background: #e8e8f0; border-color: #99a; }
+  table.kb td.hi { background: #fffde8; }
+  table.kb td.td-key { background: #fff0e8; }
+  table.kb td.empty { background: #eee; color: #aaa; border-color: #ddd; }
+  table.kb td.boot { background: #fdd; border-color: #c44; }
+  table.kb td.pad { border: none; background: none; }
+  .hold { display: block; font-size: 6px; font-weight: 400; color: #c44; line-height: 1; }
+  .sft { display: block; font-size: 6px; font-weight: 400; color: #07a; line-height: 1; }
+  .sm { font-size: 7.5px; }
+
+  /* Combo badges: small colored markers in corner of key */
+  .cb { position: absolute; font-size: 5px; font-weight: 700; line-height: 1; border-radius: 2px; padding: 0.5px 2px; }
+  .cb-tl { top: 1px; left: 1px; }  /* top-left */
+  .cb-tr { top: 1px; right: 1px; } /* top-right */
+  .cb-bl { bottom: 1px; left: 1px; }  /* bottom-left */
+  .cb-br { bottom: 1px; right: 1px; } /* bottom-right */
+  /* Bracket combo colors */
+  .cb-paren { background: #d4edda; color: #155724; }
+  .cb-brack { background: #cce5ff; color: #004085; }
+  .cb-brace { background: #f8d7da; color: #721c24; }
+  /* AltGr combo */
+  .cb-ralt { background: #e2d5f1; color: #4a2080; }
+  /* Mod combos */
+  .cb-mod { background: #fff3cd; color: #856404; }
+
+  .ref { margin-top: 4px; }
+  .ref-row { display: flex; gap: 7px; }
+  .ref-box { flex: 1; border: 1.5px solid #ddd; border-radius: 4px; padding: 5px 6px; }
+  .ref-box h2 { font-size: 9.5px; font-weight: 700; color: #444; margin-bottom: 2px; }
+  .ref-box table { width: 100%; border-collapse: collapse; }
+  .ref-box td { padding: 1.5px 3px; font-size: 8.5px; vertical-align: top; }
+  .sh { font-weight: 700; padding-top: 3px !important; font-size: 8.5px; }
+  .ck { font-family: 'SF Mono', Menlo, monospace; font-size: 7.5px; background: #f0f0f0; padding: 1px 3px; border-radius: 2px; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Halcyon Ferris &mdash; Dvorak Layout</h1>
+  <span class="sub">34 keys &middot; 4 layers &middot; TO() switching &middot; OSM modifiers &middot; EurKey</span>
+</div>
+
+<!-- ════════ LAYER 0: BASE ════════ -->
+<div class="layer base">
+  <div class="ltitle">Layer 0: Base (Dvorak)</div>
+  <table class="kb">
+    <tr>
+      <td>'<span class="sft">Sft: "</span>
+        <span class="cb cb-tl cb-mod" title="'+,+. = OSM Alt">Alt</span></td>
+      <td class="td-key">,<span class="hold">hold: &minus;</span>
+        <span class="cb cb-tl cb-mod" title=",.p = OSM GUI">GUI</span>
+        <span class="cb cb-tr cb-mod" title="'+,+. = OSM Alt">Alt</span></td>
+      <td class="td-key">.<span class="hold">hold: !</span>
+        <span class="cb cb-tr cb-ralt" title="p+. = OSM RAlt">RAlt</span>
+        <span class="cb cb-tl cb-mod" title="'+,+. = OSM Alt">Alt</span>
+        <span class="cb cb-bl cb-mod" title=",.p = OSM GUI">GUI</span></td>
+      <td>p
+        <span class="cb cb-tr cb-paren" title="p+y = (">(</span>
+        <span class="cb cb-tl cb-ralt" title="p+. = OSM RAlt">RAlt</span>
+        <span class="cb cb-bl cb-mod" title=",.p = OSM GUI">GUI</span></td>
+      <td>y
+        <span class="cb cb-tl cb-paren" title="p+y = (">(</span></td>
+      <td class="gap"></td>
+      <td>f
+        <span class="cb cb-tr cb-paren" title="f+g = )">)</span></td>
+      <td>g
+        <span class="cb cb-tl cb-paren" title="f+g = )">)</span>
+        <span class="cb cb-tr cb-ralt" title="g+c = OSM RAlt">RAlt</span>
+        <span class="cb cb-bl cb-mod" title="r+c+g = OSM GUI">GUI</span></td>
+      <td>c
+        <span class="cb cb-tl cb-ralt" title="g+c = OSM RAlt">RAlt</span>
+        <span class="cb cb-tr cb-mod" title="r+c+g = OSM GUI">GUI</span>
+        <span class="cb cb-bl cb-mod" title="l+r+c = OSM Alt">Alt</span></td>
+      <td>r
+        <span class="cb cb-tl cb-mod" title="l+r+c = OSM Alt">Alt</span>
+        <span class="cb cb-tr cb-mod" title="r+c+g = OSM GUI">GUI</span></td>
+      <td>l
+        <span class="cb cb-tr cb-mod" title="l+r+c = OSM Alt">Alt</span></td>
+    </tr>
+    <tr>
+      <td>a</td>
+      <td>o</td>
+      <td>e</td>
+      <td>u
+        <span class="cb cb-tr cb-brack" title="u+i = [">[</span></td>
+      <td>i
+        <span class="cb cb-tl cb-brack" title="u+i = [">[</span></td>
+      <td class="gap"></td>
+      <td>d
+        <span class="cb cb-tr cb-brack" title="d+h = ]">]</span></td>
+      <td>h
+        <span class="cb cb-tl cb-brack" title="d+h = ]">]</span></td>
+      <td>t</td>
+      <td>n</td>
+      <td>s</td>
+    </tr>
+    <tr>
+      <td class="td-key">:<span class="hold">hold: ;</span></td>
+      <td>q</td>
+      <td>j</td>
+      <td>k
+        <span class="cb cb-tr cb-brace" title="k+x = {">{</span></td>
+      <td>x
+        <span class="cb cb-tl cb-brace" title="k+x = {">{</span></td>
+      <td class="gap"></td>
+      <td>b
+        <span class="cb cb-tr cb-brace" title="b+m = }">}</span></td>
+      <td>m
+        <span class="cb cb-tl cb-brace" title="b+m = }">}</span></td>
+      <td>w</td>
+      <td>v</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="thumb">SPC</td>
+      <td class="thumb"><span class="sm">OSM Sft</span></td>
+      <td class="gap"></td>
+      <td class="thumb"><span class="sm">OSM Ctl</span></td>
+      <td class="thumb">TO(1)</td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ════════ LAYER 1: SYMBOLS ════════ -->
+<div class="layer symbols">
+  <div class="ltitle">Layer 1: Symbols</div>
+  <table class="kb">
+    <tr>
+      <td class="hi">Esc</td>
+      <td>@</td>
+      <td>#</td>
+      <td>$</td>
+      <td>%</td>
+      <td class="gap"></td>
+      <td>^</td>
+      <td>&amp;</td>
+      <td>*</td>
+      <td>;<span class="sft">Sft: :</span></td>
+      <td class="hi">Bksp</td>
+    </tr>
+    <tr>
+      <td class="hi">Tab</td>
+      <td>=<span class="sft">Sft: +</span></td>
+      <td>'<span class="sft">Sft: "</span></td>
+      <td>"</td>
+      <td>+</td>
+      <td class="gap"></td>
+      <td>\<span class="sft">Sft: |</span></td>
+      <td>{</td>
+      <td>}</td>
+      <td>|</td>
+      <td class="hi">Enter</td>
+    </tr>
+    <tr>
+      <td>~</td>
+      <td>`<span class="sft">Sft: ~</span></td>
+      <td>/<span class="sft">Sft: ?</span></td>
+      <td>_</td>
+      <td>?</td>
+      <td class="gap"></td>
+      <td>[<span class="sft">Sft: {</span></td>
+      <td>(</td>
+      <td>)</td>
+      <td>]<span class="sft">Sft: }</span></td>
+      <td>TO(3)</td>
+    </tr>
+    <tr>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="thumb">TO(0)</td>
+      <td class="thumb"><span class="sm">OSM Sft</span></td>
+      <td class="gap"></td>
+      <td class="thumb">RAlt</td>
+      <td class="thumb">TO(2)</td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ════════ LAYER 2: NUMBERS ════════ -->
+<div class="layer numbers">
+  <div class="ltitle">Layer 2: Numbers + F-keys</div>
+  <table class="kb">
+    <tr>
+      <td class="hi">Esc</td>
+      <td>F1</td>
+      <td>F2</td>
+      <td>F3</td>
+      <td>F4</td>
+      <td class="gap"></td>
+      <td>&minus;</td>
+      <td>7</td>
+      <td>8</td>
+      <td>9</td>
+      <td class="hi">Bksp</td>
+    </tr>
+    <tr>
+      <td class="hi">Tab</td>
+      <td>F5</td>
+      <td>F6</td>
+      <td>F7</td>
+      <td>F8</td>
+      <td class="gap"></td>
+      <td>+</td>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td class="hi">Enter</td>
+    </tr>
+    <tr>
+      <td class="empty">&mdash;</td>
+      <td>F9</td>
+      <td>F10</td>
+      <td>.</td>
+      <td>=</td>
+      <td class="gap"></td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="thumb">TO(0)</td>
+      <td class="thumb">GUI</td>
+      <td class="gap"></td>
+      <td class="thumb">RAlt</td>
+      <td class="thumb">TO(3)</td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ════════ LAYER 3: NAV ════════ -->
+<div class="layer nav">
+  <div class="ltitle">Layer 3: Navigation + Mouse</div>
+  <table class="kb">
+    <tr>
+      <td><span class="sm">G+S+&#8592;</span></td>
+      <td><span class="sm">ScLf</span></td>
+      <td><span class="sm">MsUp</span></td>
+      <td><span class="sm">ScRt</span></td>
+      <td><span class="sm">G+S+&#8594;</span></td>
+      <td class="gap"></td>
+      <td><span class="sm">Back</span></td>
+      <td><span class="sm">PTab</span></td>
+      <td><span class="sm">NTab</span></td>
+      <td><span class="sm">Fwd</span></td>
+      <td class="hi">Bksp</td>
+    </tr>
+    <tr>
+      <td><span class="sm">G+S+&#8593;</span></td>
+      <td><span class="sm">MsLf</span></td>
+      <td><span class="sm">MsDn</span></td>
+      <td><span class="sm">MsRt</span></td>
+      <td>Del</td>
+      <td class="gap"></td>
+      <td class="hi">&#8592;</td>
+      <td class="hi">&#8595;</td>
+      <td class="hi">&#8593;</td>
+      <td class="hi">&#8594;</td>
+      <td class="hi">Enter</td>
+    </tr>
+    <tr>
+      <td><span class="sm">G+S+&#8595;</span></td>
+      <td><span class="sm">Btn2</span></td>
+      <td><span class="sm">ScUp</span></td>
+      <td><span class="sm">ScDn</span></td>
+      <td><span style="font-size:6px">G+S+A+M</span></td>
+      <td class="gap"></td>
+      <td><span class="sm">Btn1</span></td>
+      <td>Home</td>
+      <td>PgUp</td>
+      <td>PgDn</td>
+      <td class="boot">BOOT</td>
+    </tr>
+    <tr>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="thumb">TO(0)</td>
+      <td class="thumb"><span class="sm">OSM Sft</span></td>
+      <td class="gap"></td>
+      <td class="thumb">RAlt</td>
+      <td class="thumb">TO(1)</td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+      <td class="pad"></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ════════ REFERENCE ════════ -->
+<div class="ref">
+  <div class="ref-row">
+    <div class="ref-box">
+      <h2>Combos (simultaneous press, base layer)</h2>
+      <table>
+        <tr><td class="sh" colspan="4">Brackets <span style="font-weight:normal">(innermost column pairs)</span></td></tr>
+        <tr><td><span class="ck">p + y</span></td><td><b>(</b> <span style="background:#d4edda;padding:0 3px;border-radius:2px;font-size:6px;color:#155724;">green badge</span></td>
+            <td><span class="ck">f + g</span></td><td><b>)</b></td></tr>
+        <tr><td><span class="ck">u + i</span></td><td><b>[</b> <span style="background:#cce5ff;padding:0 3px;border-radius:2px;font-size:6px;color:#004085;">blue badge</span></td>
+            <td><span class="ck">d + h</span></td><td><b>]</b></td></tr>
+        <tr><td><span class="ck">k + x</span></td><td><b>{</b> <span style="background:#f8d7da;padding:0 3px;border-radius:2px;font-size:6px;color:#721c24;">red badge</span></td>
+            <td><span class="ck">b + m</span></td><td><b>}</b></td></tr>
+        <tr><td class="sh" colspan="4">Umlauts <span style="font-weight:normal">(index+middle top row)</span> <span style="background:#e2d5f1;padding:0 3px;border-radius:2px;font-size:6px;color:#4a2080;">purple badge</span></td></tr>
+        <tr><td><span class="ck">g + c</span></td><td colspan="3">OSM RAlt &#8594; then a / o / u for &#228; / &#246; / &#252;</td></tr>
+        <tr><td><span class="ck">p + .</span></td><td colspan="3">OSM RAlt &#8594; then s for &#223;</td></tr>
+        <tr><td class="sh" colspan="4">Modifiers <span style="font-weight:normal">(3-key top row)</span> <span style="background:#fff3cd;padding:0 3px;border-radius:2px;font-size:6px;color:#856404;">yellow badge</span></td></tr>
+        <tr><td><span class="ck">' , .</span></td><td>OSM Alt (L)</td><td><span class="ck">l r c</span></td><td>OSM Alt (R)</td></tr>
+        <tr><td><span class="ck">, . p</span></td><td>OSM GUI (L)</td><td><span class="ck">r c g</span></td><td>OSM GUI (R)</td></tr>
+      </table>
+    </div>
+
+    <div class="ref-box">
+      <h2>Tap Dances <span style="font-weight:normal">(base layer, tap / hold)</span></h2>
+      <table>
+        <tr><td><span class="ck">,</span></td><td>tap: <b>,</b> (comma)</td><td>hold: <b>&minus;</b> (dash)</td></tr>
+        <tr><td><span class="ck">.</span></td><td>tap: <b>.</b> (period)</td><td>hold: <b>!</b> (exclamation)</td></tr>
+        <tr><td><span class="ck">:</span></td><td>tap: <b>:</b> (colon)</td><td>hold: <b>;</b> (semicolon)</td></tr>
+      </table>
+      <h2 style="margin-top:5px;">One-Shot Modifiers</h2>
+      <table>
+        <tr><td><b>OSM Sft</b></td><td>Tap &#8594; next key shifted. 2&#215;tap &#8594; lock.</td></tr>
+        <tr><td><b>OSM Ctl</b></td><td>Tap &#8594; next key Ctrl+key. 2&#215;tap &#8594; lock.</td></tr>
+        <tr><td><b>OSM RAlt</b></td><td>Combo &#8594; next key AltGr+key (Umlauts).</td></tr>
+      </table>
+      <h2 style="margin-top:5px;">Layer Navigation</h2>
+      <table>
+        <tr><td><b>TO(0)</b></td><td>Left outer thumb &#8594; Base (home)</td></tr>
+        <tr><td><b>TO(1)</b></td><td>Right outer thumb &#8594; Symbols</td></tr>
+        <tr><td><b>TO(2)</b></td><td>Symbols right thumb &#8594; Numbers</td></tr>
+        <tr><td><b>TO(3)</b></td><td>Numbers / Symbols bottom-right &#8594; Nav</td></tr>
+      </table>
+      <h2 style="margin-top:5px;">Legend</h2>
+      <table>
+        <tr>
+          <td style="background:#fff0e8;width:10px;border:1px solid #bbb;border-radius:2px;">&nbsp;</td><td>Tap dance</td>
+          <td style="background:#fffde8;width:10px;border:1px solid #bbb;border-radius:2px;">&nbsp;</td><td>Nav/edit</td>
+          <td style="background:#e8e8f0;width:10px;border:1px solid #99a;border-radius:2px;">&nbsp;</td><td>Thumb</td>
+          <td style="background:#fdd;width:10px;border:1px solid #c44;border-radius:2px;">&nbsp;</td><td>DFU</td>
+        </tr>
+        <tr><td colspan="8" style="font-size:7px;color:#888;padding-top:2px;">G = GUI/Cmd &middot; S = Shift &middot; A = Alt &middot; C = Ctrl &middot; <span style="color:#07a;">Sft: = shifted output</span></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
