@@ -2,7 +2,7 @@
 #pragma once
 
 // Home row mod timing
-#define TAPPING_TERM 240
+#define TAPPING_TERM 180
 
 // If held past TAPPING_TERM without pressing another key, register tap on release
 #define RETRO_TAPPING

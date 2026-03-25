@@ -52,6 +52,28 @@ td_state_t cur_dance(tap_dance_state_t *state) {
     return TD_UNKNOWN;
 }
 
+// Each-tap handlers: resolve immediately on double-tap
+void td_comm_dash_each(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        for (uint8_t i = 0; i < state->count; i++) tap_code(KC_COMM);
+        reset_tap_dance(state);
+    }
+}
+
+void td_dot_exlm_each(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        for (uint8_t i = 0; i < state->count; i++) tap_code(KC_DOT);
+        reset_tap_dance(state);
+    }
+}
+
+void td_coln_scln_each(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        for (uint8_t i = 0; i < state->count; i++) tap_code16(KC_COLN);
+        reset_tap_dance(state);
+    }
+}
+
 void td_comm_dash_finished(tap_dance_state_t *state, void *user_data) {
     td_state = cur_dance(state);
     switch (td_state) {
@@ -104,9 +126,9 @@ void td_coln_scln_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_COMM_DASH] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_comm_dash_finished, td_comm_dash_reset),
-    [TD_DOT_EXLM]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_dot_exlm_finished, td_dot_exlm_reset),
-    [TD_COLN_SCLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_coln_scln_finished, td_coln_scln_reset),
+    [TD_COMM_DASH] = ACTION_TAP_DANCE_FN_ADVANCED(td_comm_dash_each, td_comm_dash_finished, td_comm_dash_reset),
+    [TD_DOT_EXLM]  = ACTION_TAP_DANCE_FN_ADVANCED(td_dot_exlm_each, td_dot_exlm_finished, td_dot_exlm_reset),
+    [TD_COLN_SCLN] = ACTION_TAP_DANCE_FN_ADVANCED(td_coln_scln_each, td_coln_scln_finished, td_coln_scln_reset),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -218,6 +240,47 @@ combo_t key_combos[] = {
     COMBO(combo_osm_ralt, OSM(MOD_LALT)),
     COMBO(combo_osm_rgui, OSM(MOD_RGUI)),
 };
+
+// ─── OSM Roll Guard ──────────────────────────────────────────────────
+//
+// QMK's built-in OSM clears on the modified key's *release*. When keys
+// are rolled (next key pressed before previous is released), both keys
+// receive the modifier. This guard force-clears one-shot mods on the
+// second keydown so only the first key is modified.
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    static uint8_t consumed_osm = 0;
+
+    if (record->event.pressed) {
+        if (!IS_QK_ONE_SHOT_MOD(keycode) && !IS_QK_TO(keycode) &&
+            keycode != KC_NO && keycode != KC_TRANSPARENT) {
+            if (consumed_osm) {
+                unregister_mods(consumed_osm);
+                clear_oneshot_mods();
+                consumed_osm = 0;
+            } else {
+                uint8_t osm = get_oneshot_mods() & ~get_oneshot_locked_mods();
+                if (osm) consumed_osm = osm;
+            }
+        }
+    } else {
+        consumed_osm = 0;
+    }
+    return true;
+}
+
+// ─── Pointing Device Deadzone ────────────────────────────────────────
+//
+// The Cirque trackpad produces small non-zero deltas from electrical
+// noise even when idle. Filter them out with a simple deadzone.
+
+#define CIRQUE_DEADZONE 3
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (abs(mouse_report.x) < CIRQUE_DEADZONE) mouse_report.x = 0;
+    if (abs(mouse_report.y) < CIRQUE_DEADZONE) mouse_report.y = 0;
+    return mouse_report;
+}
 
 // ─── RGB Matrix Indicators ────────────────────────────────────────────
 
