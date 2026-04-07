@@ -41,14 +41,24 @@ Push to the `halcyon` branch. GitHub Actions compiles all targets in `qmk.json`.
 Download .uf2 files from the Releases tab.
 
 ### Local build (requires qmk CLI)
+One-time setup (already done if `qmk config user.overlay_dir` shows this repo):
 ```bash
 qmk config user.overlay_dir="$(realpath .)"
-qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_CIRQUE_TRACKPAD=1
 ```
 
+Build both halves (two separate commands — one per module flag):
+```bash
+# Right half (trackpad, master)
+qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_CIRQUE_TRACKPAD=1 -e TARGET=halcyon_ferris_nils_trackpad
+
+# Left half (TFT display)
+qmk compile -kb splitkb/halcyon/ferris/rev1 -km nils -e HLC_TFT_DISPLAY=1 -e TARGET=halcyon_ferris_nils_display
+```
+Output .uf2 files are copied to the userspace root directory.
+
 Hardware setup: display on left half, trackpad on right half (master).
-The `HLC_CIRQUE_TRACKPAD` flag matches the master (right) half's module.
-Display on the left half works via split transport.
+The module flag (`HLC_CIRQUE_TRACKPAD` or `HLC_TFT_DISPLAY`) selects which
+module code to compile. Each half needs its own .uf2.
 
 ### Flashing (RP2040 UF2)
 1. Enter DFU mode: press QK_BOOT key in keymap, OR hold BOOT + press RESET on PCB
