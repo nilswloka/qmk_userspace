@@ -170,8 +170,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          KC_TAB,   KC_F5,    KC_F6,    KC_F7,    KC_F8,       KC_PLUS,  KC_4,     KC_5,     KC_6,     KC_ENT,
     //  | (none)  | F9      | F10     | .       | =       |   | 0       | 1       | 2       | 3       | *       |
          KC_NO,    KC_F9,    KC_F10,   KC_DOT,   KC_EQL,      KC_0,     KC_1,     KC_2,     KC_3,     KC_ASTR,
-    //                                | TO(0)   | GUI     |   | RAlt    | TO(3)   |
-                                       TO(_BASE), KC_LGUI,     KC_RALT, TO(_NAV),
+    //                                | TO(0)   | OSM SFT |   | RAlt    | TO(3)   |
+                                       TO(_BASE), OSM(MOD_LSFT), KC_RALT, TO(_NAV),
     //  Module positions
          KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
     ),
